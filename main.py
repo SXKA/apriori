@@ -32,12 +32,18 @@ def main():
 
     freq_itemsets = apriori_codec.decode(freq_itemsets)
 
+    # The statistics below describe the run with the last (highest) minimum support.
+    print("Results for minimum support {}:".format(min_supports[-1]))
+
     print("The amount of frequent itemset having at least 3 items: {}".format(
         sum(len(freq_itemset) for freq_itemset in freq_itemsets[2:])))
 
-    top_10_freq_itemsets = [sorted(itemset) for freq_itemset in reversed(freq_itemsets) for itemset in
-                            freq_itemset][:10]
-    top_10_freq_itemsets = sorted(top_10_freq_itemsets, key=lambda x: (-len(x), x))
+    # Sort every itemset by length, then lexicographically, before taking ten.
+    # Taking ten items from an unordered set first made the result arbitrary.
+    top_10_freq_itemsets = sorted(
+        (sorted(itemset) for freq_itemset in freq_itemsets for itemset in freq_itemset),
+        key=lambda x: (-len(x), x),
+    )[:10]
 
     print("The top-10 longest frequent itemsets: {}".format(top_10_freq_itemsets))
 
@@ -151,9 +157,25 @@ def candidate_gen(freq_itemset):
     :param freq_itemset: An itemset whose support is greater than or equal to a minimum support.
     :return: The candidate of next frequent itemset.
     """
-    freq_itemset_list = list(freq_itemset)
+    # Join only itemsets that share the same first k-2 items (in sorted order).
+    # Comparing every pair (len(x - y) == 1) was quadratic in the number of
+    # frequent itemsets and produced each candidate many times.
+    prefix_groups = {}
 
-    return {x | y for i, x in enumerate(freq_itemset_list) for y in freq_itemset_list[i + 1:] if len(x - y) == 1}
+    for itemset in freq_itemset:
+        items = tuple(sorted(itemset))
+        prefix_groups.setdefault(items[:-1], []).append(items[-1])
+
+    candidate = set()
+
+    for prefix, last_items in prefix_groups.items():
+        last_items.sort()
+
+        for i, x in enumerate(last_items):
+            for y in last_items[i + 1:]:
+                candidate.add(frozenset(prefix + (x, y)))
+
+    return candidate
 
 
 def candidate_prune(candidate, freq_itemset):

@@ -75,8 +75,11 @@ class HashTree:
         :param rest: Itemset haven't been picked.
         """
         if tree_node.isleaf:
+            # Build the set once per leaf visit instead of once per itemset.
+            items = set(pick + rest)
+
             for itemset in tree_node.bucket:
-                if itemset not in self._updated and set(pick + rest).issuperset(itemset):
+                if itemset not in self._updated and items.issuperset(itemset):
                     tree_node.bucket[itemset] += 1
 
                     self._updated.add(itemset)
