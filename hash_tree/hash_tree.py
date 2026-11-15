@@ -1,4 +1,4 @@
-from tree_node import TreeNode
+from .tree_node import TreeNode
 
 
 class HashTree:
@@ -38,25 +38,34 @@ class HashTree:
         if tree_node.isleaf:
             tree_node.bucket[itemset] = 0
 
-            if len(tree_node.bucket) > self._max_bucket_size:
+            # A leaf whose parent hashed the last item cannot split any further, so it keeps
+            # every remaining itemset in its bucket instead of indexing past the itemset end.
+            if len(tree_node.bucket) > self._max_bucket_size and tree_node.index + 1 < self._itemset_size:
                 tree_node.index += 1
+                tree_node.isleaf = False
 
                 for old_itemset in tree_node.bucket:
-                    key = self._hash_func(old_itemset[tree_node.index])
-
-                    tree_node.children.setdefault(key, TreeNode())
-                    tree_node.children[key].index = min(tree_node.index, len(old_itemset) - 1)
-
-                    self._insert(tree_node.children[key], old_itemset)
+                    self._insert_child(tree_node, old_itemset)
 
                 tree_node.bucket.clear()
-                tree_node.isleaf = False
         else:
-            key = self._hash_func(itemset[tree_node.index])
+            self._insert_child(tree_node, itemset)
 
-            tree_node.children.setdefault(key, TreeNode())
+    def _insert_child(self, tree_node, itemset):
+        """
+        Insert an itemset into the child of an interior node selected by hashing itemset[tree_node.index].
+        :param tree_node: The interior tree node.
+        :param itemset: The itemset to be inserted.
+        """
+        key = self._hash_func(itemset[tree_node.index])
 
-            self._insert(tree_node.children[key], itemset)
+        if key not in tree_node.children:
+            child = TreeNode()
+            # Children record the index hashed by their parent; it is incremented when they split.
+            child.index = tree_node.index
+            tree_node.children[key] = child
+
+        self._insert(tree_node.children[key], itemset)
 
     def _update(self, tree_node, pick, rest):
         """

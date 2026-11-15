@@ -5,6 +5,11 @@ from matplotlib import pyplot as plt
 from codec.aprior_codec import AprioriCodec
 from hash_tree.hash_tree import HashTree
 
+# Hash tree parameters: a leaf splits once it holds more than MAX_BUCKET_SIZE itemsets,
+# and each interior node hashes items into MAX_CHILDREN_SIZE buckets.
+MAX_BUCKET_SIZE = 50
+MAX_CHILDREN_SIZE = 97
+
 
 def main():
     transactions = {}
@@ -93,6 +98,10 @@ def parse(filename):
 
                 record = {}
 
+    # The last record is not followed by a blank line when the file has no trailing newline.
+    if record:
+        yield record
+
 
 @measure_time
 def apriori(transactions, min_support):
@@ -124,7 +133,7 @@ def apriori(transactions, min_support):
             break
 
         itemset_size = len(next(iter(candidate)))
-        hash_tree = HashTree(itemset_size, candidate_size, candidate_size)
+        hash_tree = HashTree(itemset_size, MAX_BUCKET_SIZE, MAX_CHILDREN_SIZE)
         hash_tree.build(candidate)
 
         for transaction in transactions:
