@@ -9,6 +9,7 @@ class TreeNode:
     :ivar index: An integer that determines the element to be hashed.
 
     """
+
     __slots__ = ("bucket", "children", "isleaf", "index")
 
     def __init__(self):
