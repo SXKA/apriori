@@ -82,3 +82,14 @@ def test_parse_yields_last_record_without_trailing_blank_line(tmp_path):
         "product/productId: P2\nreview/userId: U2\n"
     )
     assert list(main.parse(str(data))) == [{"U1": "P1"}, {"U2": "P2"}]
+
+
+@pytest.mark.parametrize("seed", range(5))
+def test_candidate_gen_matches_pairwise_join_after_prune(seed):
+    rng = random.Random(seed)
+    for size in (1, 2, 3):
+        freq = {frozenset(rng.sample(range(8), size)) for _ in range(25)}
+        pairwise = {
+            x | y for x in freq for y in freq if x != y and len(x - y) == 1
+        }
+        assert main.candidate_prune(main.candidate_gen(freq), freq) == main.candidate_prune(pairwise, freq)
