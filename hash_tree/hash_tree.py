@@ -1,4 +1,4 @@
-from .tree_node import TreeNode
+from hash_tree.tree_node import TreeNode
 
 
 class HashTree:
