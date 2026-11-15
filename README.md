@@ -6,3 +6,12 @@ Dataset: Music.txt.gz (https://snap.stanford.edu/data/web-Amazon.html)
 <div align=center><img src=https://github.com/SXKA/Apriori/blob/master/png/time.png></div>
 
 On my computer (CPU: i5-11400H), the program execution time with minimum support 0.0009 about 2 min. 30 sec. Although mlxtend apriori isn't based on hash tree, mlxtend apriori low_memory mode about 1 min. It will faster if memory is enough.
+## Usage
+Install the dependencies with [uv](https://docs.astral.sh/uv/):
+```bash
+uv sync
+```
+Put `Music.txt` (Amazon music reviews) in the repository root, then run:
+```bash
+uv run python main.py
+```
