@@ -36,10 +36,7 @@ def brute_force_frequent_itemsets(transactions, min_support_count):
 
 def random_transactions(seed, n=60, n_items=10, max_len=7):
     rng = random.Random(seed)
-    return tuple(
-        frozenset(rng.sample(range(n_items), rng.randint(1, max_len)))
-        for _ in range(n)
-    )
+    return tuple(frozenset(rng.sample(range(n_items), rng.randint(1, max_len))) for _ in range(n))
 
 
 @pytest.mark.parametrize("seed", range(5))
@@ -77,10 +74,7 @@ def test_codec_round_trip():
 
 def test_parse_yields_last_record_without_trailing_blank_line(tmp_path):
     data = tmp_path / "Music.txt"
-    data.write_text(
-        "product/productId: P1\nreview/userId: U1\n\n"
-        "product/productId: P2\nreview/userId: U2\n"
-    )
+    data.write_text("product/productId: P1\nreview/userId: U1\n\nproduct/productId: P2\nreview/userId: U2\n")
     assert list(main.parse(str(data))) == [{"U1": "P1"}, {"U2": "P2"}]
 
 
@@ -89,7 +83,5 @@ def test_candidate_gen_matches_pairwise_join_after_prune(seed):
     rng = random.Random(seed)
     for size in (1, 2, 3):
         freq = {frozenset(rng.sample(range(8), size)) for _ in range(25)}
-        pairwise = {
-            x | y for x in freq for y in freq if x != y and len(x - y) == 1
-        }
+        pairwise = {x | y for x in freq for y in freq if x != y and len(x - y) == 1}
         assert main.candidate_prune(main.candidate_gen(freq), freq) == main.candidate_prune(pairwise, freq)

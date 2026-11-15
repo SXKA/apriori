@@ -35,8 +35,11 @@ def main():
     # The statistics below describe the run with the last (highest) minimum support.
     print("Results for minimum support {}:".format(min_supports[-1]))
 
-    print("The amount of frequent itemset having at least 3 items: {}".format(
-        sum(len(freq_itemset) for freq_itemset in freq_itemsets[2:])))
+    print(
+        "The amount of frequent itemset having at least 3 items: {}".format(
+            sum(len(freq_itemset) for freq_itemset in freq_itemsets[2:])
+        )
+    )
 
     # Sort every itemset by length, then lexicographically, before taking ten.
     # Taking ten items from an unordered set first made the result arbitrary.
@@ -51,7 +54,7 @@ def main():
     plt.xlabel("Minimum support")
     plt.xticks(range(len(min_supports)), min_supports)
     plt.ylabel("Execution time (min)")
-    plt.plot(exec_time_list, marker='.')
+    plt.plot(exec_time_list, marker=".")
     plt.show()
 
 
@@ -89,11 +92,11 @@ def parse(filename):
     with open(filename) as data:
         for line in data:
             line = line.strip()
-            colon_pos = line.find(':')
+            colon_pos = line.find(":")
 
             if colon_pos != -1:
                 key = line[:colon_pos]
-                value = line[colon_pos + 2:]
+                value = line[colon_pos + 2 :]
 
                 if key == "product/productId":
                     last_product_id = value
@@ -126,8 +129,9 @@ def apriori(transactions, min_support):
             candidate[item] += 1
 
     transactions = tuple(tuple(sorted(transaction)) for transaction in transactions)
-    freq_itemsets = [{frozenset({item}) for item, support_count in candidate.items() if
-                      support_count >= min_support_count}]
+    freq_itemsets = [
+        {frozenset({item}) for item, support_count in candidate.items() if support_count >= min_support_count}
+    ]
 
     while True:
         candidate = candidate_gen(freq_itemsets[-1])
@@ -172,7 +176,7 @@ def candidate_gen(freq_itemset):
         last_items.sort()
 
         for i, x in enumerate(last_items):
-            for y in last_items[i + 1:]:
+            for y in last_items[i + 1 :]:
                 candidate.add(frozenset(prefix + (x, y)))
 
     return candidate

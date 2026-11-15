@@ -90,7 +90,7 @@ class HashTree:
             if min_rest_size >= 0:
                 for i in range(rest_size - min_rest_size):
                     curr_pick = pick + [rest[i]]
-                    curr_rest = rest[i + 1:]
+                    curr_rest = rest[i + 1 :]
 
                     key = self._hash_func(curr_pick[tree_node.index])
 
